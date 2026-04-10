@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CH RT</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    body {
+      background-image: url('images/background.png');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .item {
+      width: 200px;
+      height: 200px;
+      background-image: url('images/snowflake.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: absolute;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .flipped {
+      transform: scaleX(-1);
+    }
+
+    .score {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 50;
+      font-size: 24px;
+      background: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      display: block;
+    }
+
+    .start-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      background: #bf8efa;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .question-box {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(3);
+      background: #bf8efa;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(42, 4, 107,0.3);
+      display: none;
+      z-index: 100;
+      width: 80%;
+      max-width: 400px;
+    }
+
+    .final-message {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      display: none;
+      z-index: 200;
+      text-align: center;
+    }
+
+    .play-again-btn {
+      margin-top: 20px;
+      font-size: 18px;
+      background: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="score" id="score">Score: 0</div>
+<div class="start-btn" id="startBtn">Начать игру</div>
+<div class="question-box" id="questionBox">
+  <p id="questionText">What is your name?</p>
+  <button onclick="closeQuestion()">Close</button>
+</div>
+<div class="final-message" id="finalMessage">
+  <h2>Well done!</h2>
+  <button class="play-again-btn" id="playAgainBtn">Play again?</button>
+</div>
+
+<script>
+  const questions = [
+    "Children (have a good time) now", "The boy (play soccer) now", "The girl (eat hot dog) now",
+    "Children (fly a kite) now", "Ann (ride a bike) now", "The woman (wear a dress) now",
+    "The men (drink a coke) now", "Sasha (ride a horse) now",
+    "Mum and dad (sleep) now", "I (walk) now"
+  ];
+
+  let score = 0;
+  let birds = [];
+  let currentBird = null;
+
+   (function() {
+    const mark = "cmFkaWF0ZWFjaGVy"; 
+    const check = mark.split('').reduce((a,b)=>a + b.charCodeAt(0), 0);
+  })();
+
+  function createBird(index) {
+    const bird = document.createElement('div');
+    bird.className = 'item';
+
+    let x = Math.random() * (window.innerWidth - 200);
+    let y = Math.random() * (window.innerHeight - 200);
+    let dx = 0.5 + Math.random();
+    let dy = 0.5 + Math.random();
+
+    bird.style.left = x + 'px';
+    bird.style.top = y + 'px';
+
+    bird.addEventListener('click', () => {
+      currentBird = bird;
+      document.getElementById('questionBox').style.display = 'block';
+      document.getElementById('questionText').innerText = questions[score];
+      bird.style.pointerEvents = 'none';
+    });
+
+    document.body.appendChild(bird);
+    birds.push(bird);
+
+    function moveBird() {
+      x += dx;
+      y += dy;
+
+      if (x <= 0 || x + 200 >= window.innerWidth) {
+        dx = -dx;
+        bird.classList.toggle('flipped');
+        x = Math.max(0, Math.min(window.innerWidth - 200, x));
+      }
+
+      if (y <= 0 || y + 200 >= window.innerHeight) {
+        dy = -dy;
+        y = Math.max(0, Math.min(window.innerHeight - 200, y));
+      }
+
+      bird.style.left = x + 'px';
+      bird.style.top = y + 'px';
+
+      if (document.body.contains(bird)) {
+        requestAnimationFrame(moveBird);
+      }
+    }
+
+    moveBird();
+  }
+
+  function startGame() {
+    document.getElementById('startBtn').style.display = 'none';
+    document.querySelector('.score').style.display = 'block';
+    score = 0;
+    document.getElementById('score').innerText = `Score: ${score}`;
+    birds.forEach(bird => bird.remove());
+    birds = [];
+
+    for (let i = 0; i < 10; i++) {
+      createBird(i);
+    }
+  }
+
+  function closeQuestion() {
+    document.getElementById('questionBox').style.display = 'none';
+    if (currentBird) {
+      currentBird.remove();
+    }
+    score++;
+    document.getElementById('score').innerText = `Score: ${score}`;
+
+    if (score === 10) {
+      document.getElementById('finalMessage').style.display = 'block';
+      document.getElementById('playAgainBtn').style.display = 'inline-block';
+    }
+  }
+
+  document.getElementById('startBtn').addEventListener('click', startGame);
+  document.getElementById('playAgainBtn').addEventListener('click', () => {
+    document.getElementById('finalMessage').style.display = 'none';
+    startGame();
+  });
+</script>
+
+</body>
+</html>
