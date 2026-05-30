@@ -19,6 +19,17 @@
       background-position: center;
     }
 
+    .background-video {
+      position: fixed; 
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover; 
+      z-index: -1; 
+    }
+
+
     .item {
       width: 200px;
       height: 200px;
@@ -103,6 +114,10 @@
   </style>
 </head>
 <body>
+  
+<video class="background-video" autoplay loop muted playsinline>
+  <source src="images/videobg.mp4" type="video/mp4">
+</video>
 
 <div class="score" id="score">Score: 0</div>
 <div class="start-btn" id="startBtn">Make negative sentences</div>
